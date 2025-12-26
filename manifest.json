@@ -1,0 +1,27 @@
+{
+  "name": "年金準備度診断",
+  "short_name": "年金診断",
+  "description": "10問で分かる！あなたの年金準備度をチェック",
+  "start_url": "/nenkin-shindan/",
+  "scope": "/nenkin-shindan/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "lifestyle"],
+  "lang": "ja"
+}
