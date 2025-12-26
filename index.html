@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>年金準備度診断 | あなたの老後は大丈夫？</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        /* スタート画面 */
+        #start-screen {
+            text-align: center;
+        }
+
+        #start-screen h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #start-screen p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .feature-list {
+            text-align: left;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .feature-list li {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 10px;
+            list-style: none;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 50px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        /* クイズ画面 */
+        #quiz-screen {
+            display: none;
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .question-number {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 22px;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: #f8f9fa;
+            border: 3px solid #e9ecef;
+            padding: 18px 20px;
+            font-size: 18px;
+            color: #333;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .option-btn:hover {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .option-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 結果画面 */
+        #result-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .rank-display {
+            margin: 20px 0;
+        }
+
+        .rank-label {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .rank-badge {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 60px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .rank-S { background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%); }
+        .rank-A { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+        .rank-B { background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%); }
+        .rank-C { background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%); }
+        .rank-D { background: linear-gradient(135deg, #dc3545 0%, #721c24 100%); }
+
+        .rank-title {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .score-display {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .result-message {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .result-message h3 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .result-message p {
+            font-size: 17px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%);
+            border: 2px solid #dc3545;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .warning-box h4 {
+            color: #dc3545;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .warning-box p {
+            color: #721c24;
+            font-size: 16px;
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .cta-section h3 {
+            font-size: 22px;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .cta-section p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .affiliate-btn {
+            display: block;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            padding: 22px 30px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(238, 90, 36, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: pulse 2s infinite;
+        }
+
+        .affiliate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(238, 90, 36, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .affiliate-btn span {
+            display: block;
+            font-size: 14px;
+            font-weight: normal;
+            margin-top: 5px;
+            opacity: 0.9;
+        }
+
+        .retry-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .retry-btn:hover {
+            background: #5a6268;
+        }
+
+        /* フッター */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .question-text {
+                font-size: 20px;
+            }
+
+            .option-btn {
+                font-size: 16px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>年金準備度診断</h1>
+            <p>10問で分かる！あなたの老後準備</p>
+        </div>
+
+        <div class="content">
+            <!-- スタート画面 -->
+            <div id="start-screen">
+                <h2>あなたの年金知識は<br>大丈夫ですか？</h2>
+                <p>簡単な10問のクイズで<br>年金準備度をチェック！</p>
+
+                <ul class="feature-list">
+                    <li>所要時間：約2分</li>
+                    <li>10問の選択式</li>
+                    <li>S〜Dの5段階評価</li>
+                    <li>結果に応じたアドバイス付き</li>
+                </ul>
+
+                <button class="start-btn" onclick="startQuiz()">
+                    診断スタート
+                </button>
+            </div>
+
+            <!-- クイズ画面 -->
+            <div id="quiz-screen">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="question-number" id="question-number"></div>
+                <div class="question-text" id="question-text"></div>
+                <div class="options" id="options"></div>
+            </div>
+
+            <!-- 結果画面 -->
+            <div id="result-screen">
+                <div class="rank-display">
+                    <div class="rank-label">あなたの年金準備度は...</div>
+                    <div class="rank-badge" id="rank-badge"></div>
+                    <div class="rank-title" id="rank-title"></div>
+                    <div class="score-display" id="score-display"></div>
+                </div>
+
+                <div class="result-message" id="result-message"></div>
+
+                <div id="warning-container"></div>
+
+                <div class="cta-section">
+                    <h3>今すぐできる対策</h3>
+                    <p>専門家に相談して、あなたに合った<br>年金対策を見つけましょう</p>
+                    <a href="https://h.accesstrade.net/sp/cc?rk=01001zf000nqj3" class="affiliate-btn" target="_blank" rel="noopener">
+                        無料で専門家に相談する
+                        <span>※相談は完全無料です</span>
+                    </a>
+                </div>
+
+                <button class="retry-btn" onclick="retryQuiz()">
+                    もう一度診断する
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 年金準備度診断</p>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "「ねんきん定期便」をどのくらいの頻度で確認していますか？",
+                options: [
+                    { text: "届いたら必ず確認する", score: 3 },
+                    { text: "たまに確認する", score: 2 },
+                    { text: "ほとんど見ない", score: 1 },
+                    { text: "届いているか分からない", score: 0 }
+                ]
+            },
+            {
+                question: "自分が将来受け取れる年金額を把握していますか？",
+                options: [
+                    { text: "具体的な金額まで把握している", score: 3 },
+                    { text: "だいたいの金額は知っている", score: 2 },
+                    { text: "あまり把握していない", score: 1 },
+                    { text: "全く分からない", score: 0 }
+                ]
+            },
+            {
+                question: "年金の「繰り下げ受給」について知っていますか？",
+                options: [
+                    { text: "仕組みを理解し、検討している", score: 3 },
+                    { text: "聞いたことはある", score: 2 },
+                    { text: "名前だけ知っている", score: 1 },
+                    { text: "初めて聞いた", score: 0 }
+                ]
+            },
+            {
+                question: "年金から天引きされるもの（税金・保険料）を把握していますか？",
+                options: [
+                    { text: "全て把握している", score: 3 },
+                    { text: "一部は知っている", score: 2 },
+                    { text: "あまり知らない", score: 1 },
+                    { text: "天引きされることを知らなかった", score: 0 }
+                ]
+            },
+            {
+                question: "配偶者の年金状況について把握していますか？",
+                options: [
+                    { text: "詳しく把握している", score: 3 },
+                    { text: "だいたい把握している", score: 2 },
+                    { text: "あまり把握していない", score: 1 },
+                    { text: "配偶者なし／全く把握していない", score: 0 }
+                ]
+            },
+            {
+                question: "年金以外の老後資金（貯蓄・投資など）の準備はできていますか？",
+                options: [
+                    { text: "計画的に準備している", score: 3 },
+                    { text: "少しは準備している", score: 2 },
+                    { text: "これから始める予定", score: 1 },
+                    { text: "特に何もしていない", score: 0 }
+                ]
+            },
+            {
+                question: "年金事務所や窓口に相談したことはありますか？",
+                options: [
+                    { text: "定期的に相談している", score: 3 },
+                    { text: "一度は相談したことがある", score: 2 },
+                    { text: "相談したいと思っている", score: 1 },
+                    { text: "相談したことがない", score: 0 }
+                ]
+            },
+            {
+                question: "「加給年金」や「振替加算」について知っていますか？",
+                options: [
+                    { text: "条件や金額も把握している", score: 3 },
+                    { text: "聞いたことはある", score: 2 },
+                    { text: "名前だけ知っている", score: 1 },
+                    { text: "初めて聞いた", score: 0 }
+                ]
+            },
+            {
+                question: "退職後に必要な届出（健康保険・年金など）を把握していますか？",
+                options: [
+                    { text: "全て把握している", score: 3 },
+                    { text: "一部は把握している", score: 2 },
+                    { text: "あまり把握していない", score: 1 },
+                    { text: "退職はまだ先なので考えていない", score: 0 }
+                ]
+            },
+            {
+                question: "老後の生活費をシミュレーションしたことはありますか？",
+                options: [
+                    { text: "詳細にシミュレーション済み", score: 3 },
+                    { text: "ざっくり計算したことがある", score: 2 },
+                    { text: "やろうと思っている", score: 1 },
+                    { text: "したことがない", score: 0 }
+                ]
+            }
+        ];
+
+        let currentQuestion = 0;
+        let totalScore = 0;
+
+        function startQuiz() {
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('quiz-screen').style.display = 'block';
+            currentQuestion = 0;
+            totalScore = 0;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            const progress = ((currentQuestion) / questions.length) * 100;
+
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('question-number').textContent = `質問 ${currentQuestion + 1} / ${questions.length}`;
+            document.getElementById('question-text').textContent = q.question;
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option.text;
+                btn.onclick = () => selectOption(option.score);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(score) {
+            totalScore += score;
+            currentQuestion++;
+
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+
+            const maxScore = questions.length * 3;
+            const percentage = (totalScore / maxScore) * 100;
+
+            let rank, title, message, color;
+
+            if (percentage >= 80) {
+                rank = 'S';
+                title = '年金マスター';
+                message = {
+                    title: '素晴らしい！年金知識は十分です',
+                    text: 'あなたは年金制度についてよく理解されています。この調子で情報をアップデートし続けましょう。ただし、制度は毎年変わる部分もあるので、定期的な確認をお忘れなく。'
+                };
+            } else if (percentage >= 60) {
+                rank = 'A';
+                title = '年金上級者';
+                message = {
+                    title: '良い準備ができています',
+                    text: '基本的な知識は身についています。ただ、まだ把握できていない部分があるかもしれません。一度専門家に相談して、見落としがないか確認することをおすすめします。'
+                };
+            } else if (percentage >= 40) {
+                rank = 'B';
+                title = '年金中級者';
+                message = {
+                    title: '基礎知識はありますが、注意が必要',
+                    text: '年金について関心はお持ちですが、重要な知識が不足している可能性があります。知らないことで損をしているかもしれません。専門家への相談で、あなたに合った対策を見つけましょう。'
+                };
+            } else if (percentage >= 20) {
+                rank = 'C';
+                title = '年金初心者';
+                message = {
+                    title: '⚠️ 知識不足で損をしている可能性',
+                    text: '年金に関する知識が十分ではありません。申請しないともらえない年金や、知らないと損する制度がたくさんあります。今すぐ専門家に相談して、対策を始めることを強くおすすめします。'
+                };
+            } else {
+                rank = 'D';
+                title = '要注意レベル';
+                message = {
+                    title: '🚨 今すぐ対策が必要です',
+                    text: '年金に関する知識がほとんどない状態です。このままでは老後に大きな不安を抱えることになりかねません。年金は「知っているか知らないか」で受給額が大きく変わります。手遅れになる前に、今すぐ専門家に相談してください。'
+                };
+            }
+
+            const rankBadge = document.getElementById('rank-badge');
+            rankBadge.textContent = rank;
+            rankBadge.className = `rank-badge rank-${rank}`;
+
+            document.getElementById('rank-title').textContent = title;
+            document.getElementById('score-display').textContent = `スコア: ${totalScore} / ${maxScore}点`;
+
+            document.getElementById('result-message').innerHTML = `
+                <h3>${message.title}</h3>
+                <p>${message.text}</p>
+            `;
+
+            // 警告ボックス（C/Dランクの場合）
+            const warningContainer = document.getElementById('warning-container');
+            if (percentage < 40) {
+                warningContainer.innerHTML = `
+                    <div class="warning-box">
+                        <h4>⚠️ 老後資金2,000万円問題</h4>
+                        <p>年金だけでは老後の生活費が約2,000万円不足すると言われています。早めの対策が、将来の安心につながります。</p>
+                    </div>
+                `;
+            } else {
+                warningContainer.innerHTML = '';
+            }
+        }
+
+        function retryQuiz() {
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
