@@ -18,6 +18,10 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -234,6 +238,21 @@
             margin-bottom: 20px;
         }
 
+        /* レーダーチャート */
+        .chart-container {
+            margin: 30px auto;
+            max-width: 350px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .chart-container h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
         .result-message {
             background: #f8f9fa;
             border-radius: 15px;
@@ -273,6 +292,86 @@
             font-size: 16px;
         }
 
+        /* LINE友だち追加ボタン */
+        .line-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: #06C755;
+            color: white;
+            text-decoration: none;
+            padding: 20px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(6, 199, 85, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .line-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(6, 199, 85, 0.5);
+        }
+
+        .line-btn svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .line-btn span {
+            display: block;
+            font-size: 14px;
+            font-weight: normal;
+            margin-top: 5px;
+        }
+
+        /* SNSシェアボタン */
+        .share-section {
+            margin: 25px 0;
+        }
+
+        .share-section h4 {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+
+        .share-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .share-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .share-twitter {
+            background: #1DA1F2;
+        }
+
+        .share-line {
+            background: #06C755;
+        }
+
         .cta-section {
             background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
             border-radius: 15px;
@@ -303,17 +402,11 @@
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(238, 90, 36, 0.4);
             transition: transform 0.3s, box-shadow 0.3s;
-            animation: pulse 2s infinite;
         }
 
         .affiliate-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 35px rgba(238, 90, 36, 0.5);
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
         }
 
         .affiliate-btn span {
@@ -365,6 +458,10 @@
                 font-size: 16px;
                 padding: 15px;
             }
+
+            .chart-container {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
@@ -385,6 +482,7 @@
                     <li>所要時間：約2分</li>
                     <li>10問の選択式</li>
                     <li>S〜Dの5段階評価</li>
+                    <li>5項目のレーダーチャート付き</li>
                     <li>結果に応じたアドバイス付き</li>
                 </ul>
 
@@ -412,9 +510,43 @@
                     <div class="score-display" id="score-display"></div>
                 </div>
 
+                <!-- レーダーチャート -->
+                <div class="chart-container">
+                    <h3>5項目の診断結果</h3>
+                    <canvas id="radar-chart"></canvas>
+                </div>
+
                 <div class="result-message" id="result-message"></div>
 
                 <div id="warning-container"></div>
+
+                <!-- LINE友だち追加ボタン -->
+                <a href="https://lin.ee/SrziaPE" class="line-btn" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+                    </svg>
+                    <div>
+                        LINEで詳しい対策を受け取る
+                        <span>年金の最新情報をお届け！</span>
+                    </div>
+                </a>
+
+                <!-- SNSシェアボタン -->
+                <div class="share-section">
+                    <h4>結果をシェアする</h4>
+                    <div class="share-buttons">
+                        <a href="#" id="twitter-share" class="share-btn share-twitter" target="_blank" rel="noopener">
+                            <svg viewBox="0 0 24 24" fill="white">
+                                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                            </svg>
+                        </a>
+                        <a href="#" id="line-share" class="share-btn share-line" target="_blank" rel="noopener">
+                            <svg viewBox="0 0 24 24" fill="white">
+                                <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
 
                 <div class="cta-section">
                     <h3>今すぐできる対策</h3>
@@ -437,9 +569,12 @@
     </div>
 
     <script>
+        // 質問データ（カテゴリ付き）
+        // カテゴリ: knowledge(年金知識), planning(将来設計), asset(資産形成), risk(リスク管理), action(行動力)
         const questions = [
             {
                 question: "「ねんきん定期便」をどのくらいの頻度で確認していますか？",
+                category: "knowledge",
                 options: [
                     { text: "届いたら必ず確認する", score: 3 },
                     { text: "たまに確認する", score: 2 },
@@ -449,6 +584,7 @@
             },
             {
                 question: "自分が将来受け取れる年金額を把握していますか？",
+                category: "planning",
                 options: [
                     { text: "具体的な金額まで把握している", score: 3 },
                     { text: "だいたいの金額は知っている", score: 2 },
@@ -458,6 +594,7 @@
             },
             {
                 question: "年金の「繰り下げ受給」について知っていますか？",
+                category: "knowledge",
                 options: [
                     { text: "仕組みを理解し、検討している", score: 3 },
                     { text: "聞いたことはある", score: 2 },
@@ -467,6 +604,7 @@
             },
             {
                 question: "年金から天引きされるもの（税金・保険料）を把握していますか？",
+                category: "risk",
                 options: [
                     { text: "全て把握している", score: 3 },
                     { text: "一部は知っている", score: 2 },
@@ -476,6 +614,7 @@
             },
             {
                 question: "配偶者の年金状況について把握していますか？",
+                category: "risk",
                 options: [
                     { text: "詳しく把握している", score: 3 },
                     { text: "だいたい把握している", score: 2 },
@@ -485,6 +624,7 @@
             },
             {
                 question: "年金以外の老後資金（貯蓄・投資など）の準備はできていますか？",
+                category: "asset",
                 options: [
                     { text: "計画的に準備している", score: 3 },
                     { text: "少しは準備している", score: 2 },
@@ -494,6 +634,7 @@
             },
             {
                 question: "年金事務所や窓口に相談したことはありますか？",
+                category: "action",
                 options: [
                     { text: "定期的に相談している", score: 3 },
                     { text: "一度は相談したことがある", score: 2 },
@@ -503,6 +644,7 @@
             },
             {
                 question: "「加給年金」や「振替加算」について知っていますか？",
+                category: "knowledge",
                 options: [
                     { text: "条件や金額も把握している", score: 3 },
                     { text: "聞いたことはある", score: 2 },
@@ -512,6 +654,7 @@
             },
             {
                 question: "退職後に必要な届出（健康保険・年金など）を把握していますか？",
+                category: "action",
                 options: [
                     { text: "全て把握している", score: 3 },
                     { text: "一部は把握している", score: 2 },
@@ -521,6 +664,7 @@
             },
             {
                 question: "老後の生活費をシミュレーションしたことはありますか？",
+                category: "planning",
                 options: [
                     { text: "詳細にシミュレーション済み", score: 3 },
                     { text: "ざっくり計算したことがある", score: 2 },
@@ -532,12 +676,21 @@
 
         let currentQuestion = 0;
         let totalScore = 0;
+        let categoryScores = {
+            knowledge: 0,  // 年金知識
+            planning: 0,   // 将来設計
+            asset: 0,      // 資産形成
+            risk: 0,       // リスク管理
+            action: 0      // 行動力
+        };
+        let radarChart = null;
 
         function startQuiz() {
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('quiz-screen').style.display = 'block';
             currentQuestion = 0;
             totalScore = 0;
+            categoryScores = { knowledge: 0, planning: 0, asset: 0, risk: 0, action: 0 };
             showQuestion();
         }
 
@@ -556,13 +709,14 @@
                 const btn = document.createElement('button');
                 btn.className = 'option-btn';
                 btn.textContent = option.text;
-                btn.onclick = () => selectOption(option.score);
+                btn.onclick = () => selectOption(option.score, q.category);
                 optionsContainer.appendChild(btn);
             });
         }
 
-        function selectOption(score) {
+        function selectOption(score, category) {
             totalScore += score;
+            categoryScores[category] += score;
             currentQuestion++;
 
             if (currentQuestion < questions.length) {
@@ -579,7 +733,7 @@
             const maxScore = questions.length * 3;
             const percentage = (totalScore / maxScore) * 100;
 
-            let rank, title, message, color;
+            let rank, title, message;
 
             if (percentage >= 80) {
                 rank = 'S';
@@ -642,6 +796,94 @@
             } else {
                 warningContainer.innerHTML = '';
             }
+
+            // レーダーチャートを描画
+            drawRadarChart();
+
+            // SNSシェアリンクを設定
+            setupShareLinks(rank, totalScore, maxScore);
+        }
+
+        function drawRadarChart() {
+            const ctx = document.getElementById('radar-chart').getContext('2d');
+
+            // カテゴリごとの最大スコアを計算
+            const maxScores = { knowledge: 9, planning: 6, asset: 3, risk: 6, action: 6 };
+
+            // パーセンテージに変換（0-100）
+            const data = [
+                (categoryScores.knowledge / maxScores.knowledge) * 100,
+                (categoryScores.planning / maxScores.planning) * 100,
+                (categoryScores.asset / maxScores.asset) * 100,
+                (categoryScores.risk / maxScores.risk) * 100,
+                (categoryScores.action / maxScores.action) * 100
+            ];
+
+            if (radarChart) {
+                radarChart.destroy();
+            }
+
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['年金知識', '将来設計', '資産形成', 'リスク管理', '行動力'],
+                    datasets: [{
+                        label: 'あなたのスコア',
+                        data: data,
+                        backgroundColor: 'rgba(102, 126, 234, 0.3)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20,
+                                display: false
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            angleLines: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                color: '#333'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function setupShareLinks(rank, score, maxScore) {
+            const shareText = `年金準備度診断で「${rank}ランク」でした！（${score}/${maxScore}点）あなたも診断してみませんか？`;
+            const shareUrl = window.location.href;
+
+            // Twitterシェア
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+            document.getElementById('twitter-share').href = twitterUrl;
+
+            // LINEシェア
+            const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+            document.getElementById('line-share').href = lineUrl;
         }
 
         function retryQuiz() {
